@@ -14,13 +14,14 @@
     localStorage.setItem(KEY, sessionId);
   }
 
-  // ===== 横長バー（ランチャー） =====
-  const launcher = document.createElement("div");
-  launcher.id = "aiLauncher";
+  // ===== 横長CTAボタン（ランチャー）=====
+  const launcher = document.createElement("button");
+  launcher.id = "aiLauncherBtn";
+  launcher.type = "button";
   launcher.innerHTML = `
-    <div class="aiLauncherGlow"></div>
-    <input id="aiLauncherInput" placeholder="AIに質問する…" />
-    <button id="aiLauncherSend" aria-label="send">↵</button>
+    <span class="aiDot"></span>
+    <span class="aiLauncherText">AIに質問する</span>
+    <span class="aiLauncherHint">クリックで起動</span>
   `;
   document.body.appendChild(launcher);
 
@@ -45,7 +46,7 @@
   `;
   document.body.appendChild(box);
 
-  // ===== CSS（ズレ修正 + ランチャー追加） =====
+  // ===== CSS =====
   const style = document.createElement("style");
   style.textContent = `
 :root{
@@ -57,10 +58,10 @@
   --ai-radius:18px;
 }
 
-/* ===== 横長ランチャー ===== */
-#aiLauncher{
+/* CTAボタン（横長） */
+#aiLauncherBtn{
   position:fixed; right:18px; bottom:18px;
-  width:min(520px, calc(100vw - 36px));
+  width:min(360px, calc(100vw - 36px));
   height:54px;
   z-index:999999;
   border-radius:999px;
@@ -70,46 +71,46 @@
   -webkit-backdrop-filter: blur(14px);
   box-shadow: 0 0 0 1px rgba(0,229,255,.10), 0 0 30px rgba(0,229,255,.16), var(--ai-shadow);
   display:flex; align-items:center; gap:10px;
-  padding: 8px 10px;
+  padding: 10px 14px;
+  cursor:pointer;
+  color: var(--ai-text);
   overflow:hidden;
 }
-#aiLauncher .aiLauncherGlow{
+#aiLauncherBtn::before{
+  content:"";
   position:absolute; inset:-2px;
   background: radial-gradient(60% 120% at 10% 50%, rgba(0,229,255,.25), transparent 60%),
               radial-gradient(60% 120% at 90% 50%, rgba(177,0,255,.18), transparent 60%);
   pointer-events:none;
 }
-#aiLauncherInput{
-  flex:1;
-  height:38px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.10);
-  background: rgba(8,10,16,.55);
-  color: var(--ai-text);
-  outline:none;
-  padding: 0 14px;
-  box-shadow: inset 0 0 0 1px rgba(0,229,255,.06);
+#aiLauncherBtn .aiDot{
+  width:10px; height:10px; border-radius:999px;
+  background: linear-gradient(135deg, rgba(0,229,255,.95), rgba(177,0,255,.85));
+  box-shadow: 0 0 18px rgba(0,229,255,.55);
+  flex:0 0 auto;
   position:relative;
 }
-#aiLauncherInput:focus{
-  border-color: rgba(0,229,255,.40);
-  box-shadow: 0 0 0 3px rgba(0,229,255,.14), inset 0 0 0 1px rgba(177,0,255,.08);
+#aiLauncherBtn .aiLauncherText{
+  font-weight:800;
+  letter-spacing:.06em;
+  white-space:nowrap;
+  position:relative;
 }
-#aiLauncherSend{
-  width:42px; height:38px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.10);
-  cursor:pointer;
-  color: rgba(245,245,255,.95);
-  background: linear-gradient(135deg, rgba(0,229,255,.45), rgba(177,0,255,.30));
-  box-shadow: 0 0 0 1px rgba(0,229,255,.10), 0 0 22px rgba(0,229,255,.22);
-  font-size:16px;
-  display:flex; align-items:center; justify-content:center;
+#aiLauncherBtn .aiLauncherHint{
+  margin-left:auto;
+  font-size:12px;
+  color: var(--ai-muted);
+  letter-spacing:.08em;
+  position:relative;
+}
+#aiLauncherBtn:hover{
+  border-color: rgba(0,229,255,.35);
+  box-shadow: 0 0 0 1px rgba(0,229,255,.18), 0 0 46px rgba(0,229,255,.22), var(--ai-shadow);
 }
 
-/* ===== 本体（ズレ修正） ===== */
+/* 本体 */
 #aiWidgetBox{
-  position:fixed; right:18px; bottom:82px; /* ランチャーの上に積む */
+  position:fixed; right:18px; bottom:82px;
   width:390px; max-width:92vw;
   height:560px; max-height:72vh;
   display:none; overflow:hidden;
@@ -136,7 +137,7 @@
   opacity:.65;
 }
 
-/* ヘッダー：×ズレ修正（サイズ固定＆中央揃え） */
+/* ヘッダー（×ズレ防止） */
 .aiHead{
   padding:12px 12px;
   background: linear-gradient(180deg, rgba(0,229,255,.08), rgba(177,0,255,.03));
@@ -157,7 +158,7 @@
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .aiX{
-  width:36px; height:36px; /* 固定でズレ消す */
+  width:36px; height:36px;
   border:none; background: rgba(0,0,0,.18);
   color: rgba(245,245,255,.85);
   border-radius:12px;
@@ -170,7 +171,7 @@
 /* ログ */
 .aiLog{
   padding:14px;
-  height: calc(100% - 122px); /* footer消したので調整 */
+  height: calc(100% - 122px);
   overflow:auto;
   overscroll-behavior: contain;
 }
@@ -226,6 +227,12 @@
   background: linear-gradient(135deg, rgba(0,229,255,.45), rgba(177,0,255,.30));
   box-shadow: 0 0 0 1px rgba(0,229,255,.10), 0 0 22px rgba(0,229,255,.22);
 }
+
+/* モバイル：下に余白 */
+@media (max-width: 520px){
+  #aiWidgetBox{ right:12px; width: calc(100vw - 24px); }
+  #aiLauncherBtn{ right:12px; width: calc(100vw - 24px); }
+}
   `;
   document.head.appendChild(style);
 
@@ -233,9 +240,6 @@
   const input = box.querySelector("#aiWidgetInput");
   const send = box.querySelector("#aiWidgetSend");
   const close = box.querySelector("#aiWidgetClose");
-
-  const lInput = launcher.querySelector("#aiLauncherInput");
-  const lSend = launcher.querySelector("#aiLauncherSend");
 
   function addMsg(role, text) {
     const wrap = document.createElement("div");
@@ -249,23 +253,34 @@
     return bub;
   }
 
-  function openBox() { box.style.display = "block"; }
-  function closeBox() { box.style.display = "none"; }
+  function openBox() {
+    box.style.display = "block";
+    // CTAを少し目立たなくする（任意）
+    launcher.style.opacity = "0.75";
+  }
+  function closeBox() {
+    box.style.display = "none";
+    launcher.style.opacity = "1";
+  }
+
+  launcher.addEventListener("click", () => {
+    openBox();
+    // 初回だけ案内を出す
+    if (!log.dataset.booted) {
+      log.dataset.booted = "1";
+      addMsg("ai", "質問どうぞ。料金/導入/相談も可。");
+    }
+    input.focus();
+  });
 
   close.onclick = closeBox;
 
-  async function doSend(text) {
-    const t = (text ?? input.value).trim();
-    if (!t) return;
+  async function doSend() {
+    const text = input.value.trim();
+    if (!text) return;
 
-    // 送信元がランチャーなら、ボックスを開いてログへ
-    openBox();
-
-    // 入力欄クリア
     input.value = "";
-    lInput.value = "";
-
-    addMsg("user", t);
+    addMsg("user", text);
     const pending = addMsg("ai", "…");
 
     try {
@@ -273,26 +288,23 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: t,
+          message: text,
           session_id: sessionId,
           page_url: location.href,
           ts: new Date().toISOString()
         })
       });
+
       const data = await res.json();
-      pending.textContent = data.reply || data.output || data.text || "返答が空だ";
+      pending.textContent =
+        data.reply || data.output || data.text || "返答が空だ";
     } catch (e) {
       pending.textContent = "通信エラー。CORS(コルス)かWebhookだ。";
     }
   }
 
-  // 本体送信
-  send.onclick = () => doSend(input.value);
-  input.addEventListener("keydown", (e) => { if (e.key === "Enter") doSend(input.value); });
-
-  // ランチャー送信（＝ここがメイン）
-  lSend.onclick = () => doSend(lInput.value);
-  lInput.addEventListener("keydown", (e) => { if (e.key === "Enter") doSend(lInput.value); });
-
-  addMsg("ai", "質問をどうぞ。料金/導入も答える。");
+  send.onclick = doSend;
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") doSend();
+  });
 })();
